@@ -210,3 +210,95 @@ def covariate_shift_analysis(X_train, X_test, feature_names):
         })
 
     return pd.DataFrame(results).sort_values('ks_statistic', ascending=False)
+
+
+def concept_drift_analysis(df_train, df_test):
+    """
+    Analyse de la dérive conceptuelle entre les données d'entraînement et de test.
+    Compare les relations conditionnelles features→survie entre les deux ensembles.
+    """
+    results = {}
+
+    # Relation genre → survie
+    if 'sex' in df_train.columns and 'survived' in df_train.columns:
+        train_gender = df_train.groupby('sex')['survived'].mean()
+        test_gender = df_test.groupby('sex')['survived'].mean()
+        results['gender_survival'] = {
+            'train': train_gender.to_dict(),
+            'test': test_gender.to_dict(),
+            'drift': {sex: abs(train_gender.get(sex, 0) - test_gender.get(sex, 0))
+                      for sex in set(train_gender.index) | set(test_gender.index)}
+        }
+
+    # Relation classe → survie
+    if 'social_class' in df_train.columns:
+        train_class = df_train.groupby('social_class')['survived'].mean()
+        test_class = df_test.groupby('social_class')['survived'].mean()
+        results['class_survival'] = {
+            'train': train_class.to_dict(),
+            'test': test_class.to_dict(),
+            'drift': {sc: abs(train_class.get(sc, 0) - test_class.get(sc, 0))
+                      for sc in set(train_class.index) | set(test_class.index)}
+        }
+
+    # Relation équipage → survie
+    if 'is_crew' in df_train.columns:
+        train_crew = df_train.groupby('is_crew')['survived'].mean()
+        test_crew = df_test.groupby('is_crew')['survived'].mean()
+        results['crew_survival'] = {
+            'train': train_crew.to_dict(),
+            'test': test_crew.to_dict(),
+            'drift': {c: abs(train_crew.get(c, 0) - test_crew.get(c, 0))
+                      for c in set(train_crew.index) | set(test_crew.index)}
+        }
+
+    return results
+
+
+def fairness_metrics(y_true, y_pred, protected_attribute):
+    """
+    Calcule les métriques d'équité standard.
+
+    Retourne:
+    - Statistical parity difference
+    - Equal opportunity difference
+    - Predictive parity difference
+    """
+    groups = np.unique(protected_attribute)
+    if len(groups) < 2:
+        return {}
+
+    group_metrics = {}
+    for g in groups:
+        mask = protected_attribute == g
+        if mask.sum() == 0:
+            continue
+        group_metrics[g] = {
+            'positive_rate': y_pred[mask].mean(),
+            'tpr': recall_score(y_true[mask], y_pred[mask], zero_division=0),
+            'ppv': precision_score(y_true[mask], y_pred[mask], zero_division=0)
+        }
+
+    if len(group_metrics) < 2:
+        return {}
+
+    groups_list = list(group_metrics.keys())
+    ref = groups_list[0]
+
+    results = {
+        'statistical_parity_diff': abs(
+            group_metrics[groups_list[0]]['positive_rate'] -
+            group_metrics[groups_list[1]]['positive_rate']
+        ),
+        'equal_opportunity_diff': abs(
+            group_metrics[groups_list[0]]['tpr'] -
+            group_metrics[groups_list[1]]['tpr']
+        ),
+        'predictive_parity_diff': abs(
+            group_metrics[groups_list[0]]['ppv'] -
+            group_metrics[groups_list[1]]['ppv']
+        ),
+        'group_metrics': group_metrics
+    }
+
+    return results
