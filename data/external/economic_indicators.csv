@@ -1,0 +1,6 @@
+disaster,year,country,gdp_per_capita_usd_current,gdp_per_capita_usd_2014,inflation_rate_pct,avg_annual_wage_usd_2014
+titanic,1912,United Kingdom,545,12800,3.4,11500
+titanic,1912,United States,580,13620,2.0,12000
+lusitania,1915,United Kingdom,685,14200,12.5,12800
+lusitania,1915,United States,640,13900,1.0,12500
+sewol,2014,South Korea,27970,27970,1.3,33110

@@ -1,0 +1,4 @@
+disaster,date,time_of_sinking,sea_state,visibility,wind_speed_knots,wave_height_m,water_temp_celsius,air_temp_celsius,precipitation,moon_phase,daylight
+titanic,1912-04-15,02:20,calm,clear_starry,0,0.0,-2,4.1,none,waning_crescent,night
+lusitania,1915-05-07,14:28,moderate,clear,10,1.5,11,13.0,none,last_quarter,day
+sewol,2014-04-16,10:20,rough,foggy,25,2.5,12,15.0,none,waning_gibbous,day

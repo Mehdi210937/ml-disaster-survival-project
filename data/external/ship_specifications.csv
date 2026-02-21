@@ -1,0 +1,4 @@
+disaster,ship_name,year,tonnage_grt,length_m,beam_m,passengers_capacity,crew_capacity,total_capacity,lifeboats,lifeboat_capacity,sinking_duration_min,water_temp_celsius,air_temp_celsius,latitude,longitude,cause,era
+titanic,RMS Titanic,1912,46328,269.1,28.2,2435,892,3327,20,1178,160,-2,4.1,41.73,-49.95,iceberg_collision,edwardian
+lusitania,RMS Lusitania,1915,31550,240.0,26.8,2198,850,3048,48,2600,18,11,13.0,51.25,-8.55,torpedo,ww1
+sewol,MV Sewol,2014,6825,145.6,22.0,921,30,951,46,1130,150,12,15.0,34.22,125.97,capsizing,modern
