@@ -112,3 +112,25 @@ Les données utilisées concernent des personnes réelles ayant vécu des évén
 3. **Hétérogénéité des features** : Les trois datasets n'ont pas les mêmes variables disponibles.
 4. **Données manquantes non aléatoires** : L'absence de certaines informations est liée au statut social (MNAR).
 5. **Granularité temporelle** : Pas d'information sur le moment précis du sauvetage de chaque individu.
+
+## 6. Distribution Shift : Analyse Détaillée
+
+### 6.1 Décalage démographique (Covariate Shift)
+- **Titanic/Lusitania** : Distribution d'âge large (0-80 ans), mixte hommes/femmes
+- **Sewol** : 68% de lycéens de 17 ans, distribution bimodale (pic à 17 et 40-60)
+- **Impact** : Les modèles entraînés sur une distribution variée font des prédictions incertaines sur une population homogène
+
+### 6.2 Décalage conceptuel (Concept Drift)
+- **1912-1915** : Protocole "femmes et enfants d'abord" strictement appliqué
+- **2014** : Ordre de rester dans les cabines, pas de protocole genré. L'équipage a fui en premier
+- **Impact** : La relation `genre → survie` s'inverse, rendant le modèle prédictif sur le mauvais pattern
+
+### 6.3 Décalage de mesure (Measurement Shift)
+- Classes de billets (Titanic) vs catégories de personnel (Sewol)
+- Tarifs en livres/dollars vs pas de tarif (ferry domestique)
+- Position dans le navire : cabine (Titanic) vs étage/localisation (Sewol)
+
+### 6.4 Solutions techniques proposées
+1. **Pondération par densité** (importance weighting) pour le covariate shift
+2. **Features abstraites** (social_rank normalisé) plutôt que features brutes pour le measurement shift
+3. **Modélisation hiérarchique** avec paramètres spécifiques par catastrophe pour le concept drift
