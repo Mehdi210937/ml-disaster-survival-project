@@ -320,3 +320,50 @@ def mcnemar_test(y_true, y_pred_1, y_pred_2):
     p_value = 1 - chi2.cdf(statistic, df=1)
 
     return statistic, p_value
+
+
+def bootstrap_confidence_interval(model, X_test, y_test, metric_fn, n_bootstrap=1000,
+                                   confidence=0.95, random_state=42):
+    """
+    Calcule un intervalle de confiance par bootstrap pour une métrique donnée.
+    Utile pour quantifier l'incertitude des métriques de performance.
+    """
+    rng = np.random.RandomState(random_state)
+    n = len(y_test)
+    scores = []
+
+    for _ in range(n_bootstrap):
+        idx = rng.choice(n, n, replace=True)
+        X_boot = X_test.iloc[idx] if hasattr(X_test, 'iloc') else X_test[idx]
+        y_boot = y_test.iloc[idx] if hasattr(y_test, 'iloc') else y_test[idx]
+        y_pred_boot = model.predict(X_boot)
+        scores.append(metric_fn(y_boot, y_pred_boot))
+
+    alpha = 1 - confidence
+    lower = np.percentile(scores, 100 * alpha / 2)
+    upper = np.percentile(scores, 100 * (1 - alpha / 2))
+
+    return {
+        'mean': np.mean(scores),
+        'std': np.std(scores),
+        'lower': lower,
+        'upper': upper,
+        'confidence': confidence
+    }
+
+
+def generate_model_comparison_table(pooled_results, separate_results):
+    """
+    Génère un tableau de comparaison propre entre les deux stratégies.
+    """
+    rows = []
+    for model_name in pooled_results:
+        row = {'Model': model_name}
+        for metric in ['accuracy', 'precision', 'recall', 'f1', 'roc_auc']:
+            if metric in pooled_results[model_name]:
+                row[f'Pooled_{metric}'] = pooled_results[model_name][metric]
+            if metric in separate_results.get(model_name, {}):
+                row[f'Separate_{metric}'] = separate_results[model_name][metric]
+        rows.append(row)
+
+    return pd.DataFrame(rows).set_index('Model')
