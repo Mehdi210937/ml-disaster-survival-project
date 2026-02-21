@@ -41,3 +41,10 @@ env/
 # Model outputs
 *.pkl
 *.joblib
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+~$*
