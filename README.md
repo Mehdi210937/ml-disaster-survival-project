@@ -105,3 +105,23 @@ jupyter nbconvert --to pdf notebooks/06_technical_report.ipynb --output ../repor
 - scipy, statsmodels
 
 Voir `requirements.txt` pour la liste complète.
+
+## Architecture des Modules
+
+```
+src/
+├── data_processing.py      # Chargement, nettoyage, unification, validation
+├── feature_engineering.py   # MICE, connectivité sociale, features contextuelles
+├── models.py               # 4 modèles, 2 stratégies, importance, bootstrap CI
+└── evaluation.py           # Métriques, biais, concept drift, fairness
+```
+
+Chaque module est importable depuis les notebooks via :
+```python
+sys.path.insert(0, os.path.abspath('..'))
+from src.data_processing import load_titanic, clean_titanic
+```
+
+## Auteur
+
+Projet réalisé dans le cadre du Master BIDABI - Machine Learning.
