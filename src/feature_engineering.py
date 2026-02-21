@@ -257,6 +257,35 @@ def prepare_features_for_modeling(df, scale=True):
     return X, y, scaler, available_features
 
 
+def compute_feature_correlations(X, y, method='pearson'):
+    """
+    Analyse les corrélations entre features et avec la variable cible.
+    Identifie les paires de features fortement corrélées (multicolinéarité).
+    """
+    # Corrélation avec la cible
+    target_corr = X.corrwith(y).abs().sort_values(ascending=False)
+
+    # Matrice de corrélation inter-features
+    corr_matrix = X.corr(method=method)
+
+    # Identifier les paires fortement corrélées (|r| > 0.7)
+    high_corr_pairs = []
+    for i in range(len(corr_matrix.columns)):
+        for j in range(i + 1, len(corr_matrix.columns)):
+            if abs(corr_matrix.iloc[i, j]) > 0.7:
+                high_corr_pairs.append({
+                    'feature_1': corr_matrix.columns[i],
+                    'feature_2': corr_matrix.columns[j],
+                    'correlation': corr_matrix.iloc[i, j]
+                })
+
+    return {
+        'target_correlations': target_corr,
+        'correlation_matrix': corr_matrix,
+        'high_correlation_pairs': pd.DataFrame(high_corr_pairs)
+    }
+
+
 def full_feature_engineering_pipeline(unified_df):
     """
     Pipeline complète de feature engineering.
