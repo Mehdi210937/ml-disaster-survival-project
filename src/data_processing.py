@@ -273,3 +273,61 @@ def get_data_quality_report(df, name="Dataset"):
         'duplicates': df.duplicated().sum()
     }
     return report
+
+
+def validate_unified_dataset(df):
+    """
+    Valide l'intégrité du dataset unifié après nettoyage.
+    Retourne une liste d'erreurs si des problèmes sont détectés.
+    """
+    errors = []
+
+    # Vérifier les colonnes requises
+    required_cols = ['survived', 'age', 'sex', 'social_class', 'is_crew',
+                     'group_size', 'disaster', 'disaster_year']
+    for col in required_cols:
+        if col not in df.columns:
+            errors.append(f"Colonne manquante : {col}")
+
+    # Vérifier les valeurs de survived
+    if 'survived' in df.columns:
+        invalid = df['survived'][~df['survived'].isin([0, 1])]
+        if len(invalid) > 0:
+            errors.append(f"survived contient {len(invalid)} valeurs invalides")
+
+    # Vérifier les valeurs de sex
+    if 'sex' in df.columns:
+        valid_sex = {'male', 'female'}
+        invalid_sex = set(df['sex'].dropna().unique()) - valid_sex
+        if invalid_sex:
+            errors.append(f"sex contient des valeurs invalides : {invalid_sex}")
+
+    # Vérifier social_class
+    if 'social_class' in df.columns:
+        invalid_class = df['social_class'][~df['social_class'].isin([1, 2, 3])]
+        if len(invalid_class) > 0:
+            errors.append(f"social_class contient {len(invalid_class)} valeurs hors [1,2,3]")
+
+    # Vérifier les catastrophes
+    if 'disaster' in df.columns:
+        valid_disasters = {'titanic', 'lusitania', 'sewol'}
+        invalid_d = set(df['disaster'].unique()) - valid_disasters
+        if invalid_d:
+            errors.append(f"disaster contient des valeurs invalides : {invalid_d}")
+
+    # Vérifier les plages d'âge
+    if 'age' in df.columns:
+        ages = df['age'].dropna()
+        if (ages < 0).any():
+            errors.append(f"age contient des valeurs négatives")
+        if (ages > 120).any():
+            errors.append(f"age contient des valeurs > 120")
+
+    if not errors:
+        print(f"Validation OK : {len(df)} lignes, aucune erreur détectée.")
+    else:
+        print(f"Validation : {len(errors)} erreur(s) détectée(s) :")
+        for e in errors:
+            print(f"  - {e}")
+
+    return errors
